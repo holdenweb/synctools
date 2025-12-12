@@ -1,0 +1,20 @@
+[project]
+name = "synctools"
+version = "0.1.1"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Steve Holden", email = "steve@holdenweb.com" }
+]
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+synctools = "synctools:main"
+sync_to = "sync_to:main"
+sync_from = "sync_from:main"
+
+[build-system]
+requires = ["uv_build>=0.8.3,<0.9.0"]
+build-backend = "uv_build"
+
