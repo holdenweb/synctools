@@ -1,3 +1,13 @@
+import sys
+from pathlib import Path
+
+# Import from the same package
+from .sync_dirs import (
+    validate_directory,
+    check_rsync_available,
+    sync_directories,
+)
+
 def sync_from():
     """Main function for sync_from command."""
     # Check for correct number of arguments
