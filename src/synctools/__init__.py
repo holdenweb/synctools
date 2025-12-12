@@ -1,2 +1,100 @@
-def main() -> None:
-    print("Hello from synctools!")
+def sync_from():
+    """Main function for sync_from command."""
+    # Check for correct number of arguments
+    if len(sys.argv) != 2:
+        print("Usage: sync_from <remote_parent_dir>", file=sys.stderr)
+        print("", file=sys.stderr)
+        print(
+            "Synchronizes current directory FROM <remote_parent_dir>/$(basename $PWD)",
+            file=sys.stderr,
+        )
+        print("", file=sys.stderr)
+        print("Example:", file=sys.stderr)
+        print("  cd /home/user/myproject", file=sys.stderr)
+        print("  sync_from /backup", file=sys.stderr)
+        print("  # Syncs FROM /backup/myproject TO current directory", file=sys.stderr)
+        sys.exit(1)
+
+    remote_parent_path = sys.argv[1]
+    current_dir = Path.cwd()
+    current_basename = current_dir.name
+    parent_dir = current_dir.parent
+
+    # Check if rsync is available
+    if not check_rsync_available():
+        print("Error: rsync is not available on this system.", file=sys.stderr)
+        print("Please install rsync:", file=sys.stderr)
+        print("  Ubuntu/Debian: sudo apt-get install rsync", file=sys.stderr)
+        print("  macOS: brew install rsync (or use built-in version)", file=sys.stderr)
+        print("  Windows: Install via WSL, Cygwin, or msys2", file=sys.stderr)
+        sys.exit(1)
+
+    # Validate remote parent directory
+    remote_parent = validate_directory(remote_parent_path, "Remote parent directory")
+
+    # Construct the source path (remote subdirectory)
+    source = remote_parent / current_basename
+
+    # Validate that the source subdirectory exists
+    if not source.exists():
+        print(
+            f"Error: Source subdirectory does not exist: {source}", file=sys.stderr
+        )
+        print(
+            f"Expected to find a subdirectory named '{current_basename}' in {remote_parent}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    if not source.is_dir():
+        print(f"Error: Source path is not a directory: {source}", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"Synchronizing FROM: {source.resolve()}", file=sys.stderr)
+    print(f"              TO: {current_dir.resolve()}", file=sys.stderr)
+    print("", file=sys.stderr)
+
+    # Perform synchronization: source is remote subdirectory, destination is parent of current dir
+    sync_directories(source, parent_dir)
+
+def sync_to():
+    """Main function for sync_to command."""
+    # Check for correct number of arguments
+    if len(sys.argv) != 2:
+        print("Usage: sync_to <remote_parent_dir>", file=sys.stderr)
+        print("", file=sys.stderr)
+        print(
+            "Synchronizes current directory TO <remote_parent_dir>/$(basename $PWD)",
+            file=sys.stderr,
+        )
+        print("", file=sys.stderr)
+        print("Example:", file=sys.stderr)
+        print("  cd /home/user/myproject", file=sys.stderr)
+        print("  sync_to /backup", file=sys.stderr)
+        print("  # Syncs FROM current directory TO /backup/myproject", file=sys.stderr)
+        sys.exit(1)
+
+    remote_parent_path = sys.argv[1]
+    current_dir = Path.cwd()
+
+    # Check if rsync is available
+    if not check_rsync_available():
+        print("Error: rsync is not available on this system.", file=sys.stderr)
+        print("Please install rsync:", file=sys.stderr)
+        print("  Ubuntu/Debian: sudo apt-get install rsync", file=sys.stderr)
+        print("  macOS: brew install rsync (or use built-in version)", file=sys.stderr)
+        print("  Windows: Install via WSL, Cygwin, or msys2", file=sys.stderr)
+        sys.exit(1)
+
+    # Validate remote parent directory
+    remote_parent = validate_directory(remote_parent_path, "Remote parent directory")
+
+    print(f"Synchronizing FROM: {current_dir.resolve()}", file=sys.stderr)
+    print(
+        f"              TO: {remote_parent.resolve()}/{current_dir.name}",
+        file=sys.stderr,
+    )
+    print("", file=sys.stderr)
+
+    # Perform synchronization: source is current directory, destination is remote parent
+    sync_directories(current_dir, remote_parent)
