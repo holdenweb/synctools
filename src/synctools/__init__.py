@@ -12,18 +12,7 @@ def sync_from():
     """Main function for sync_from command."""
     # Check for correct number of arguments
     if len(sys.argv) != 2:
-        print("Usage: sync_from <remote_parent_dir>", file=sys.stderr)
-        print("", file=sys.stderr)
-        print(
-            "Synchronizes current directory FROM <remote_parent_dir>/$(basename $PWD)",
-            file=sys.stderr,
-        )
-        print("", file=sys.stderr)
-        print("Example:", file=sys.stderr)
-        print("  cd /home/user/myproject", file=sys.stderr)
-        print("  sync_from /backup", file=sys.stderr)
-        print("  # Syncs FROM /backup/myproject TO current directory", file=sys.stderr)
-        sys.exit(1)
+        from_usage()
 
     remote_parent_path = sys.argv[1]
     current_dir = Path.cwd()
@@ -32,11 +21,7 @@ def sync_from():
 
     # Check if rsync is available
     if not check_rsync_available():
-        print("Error: rsync is not available on this system.", file=sys.stderr)
-        print("Please install rsync:", file=sys.stderr)
-        print("  Ubuntu/Debian: sudo apt-get install rsync", file=sys.stderr)
-        print("  macOS: brew install rsync (or use built-in version)", file=sys.stderr)
-        print("  Windows: Install via WSL, Cygwin, or msys2", file=sys.stderr)
+        prt_error("Error: rsync is not available on this system.")
         sys.exit(1)
 
     # Validate remote parent directory
@@ -47,64 +32,75 @@ def sync_from():
 
     # Validate that the source subdirectory exists
     if not source.exists():
-        print(
-            f"Error: Source subdirectory does not exist: {source}", file=sys.stderr
+        prt_error(
+            f"Error: Source subdirectory does not exist: {source}"
         )
-        print(
+        prt_error(
             f"Expected to find a subdirectory named '{current_basename}' in {remote_parent}",
-            file=sys.stderr,
         )
         sys.exit(1)
 
     if not source.is_dir():
-        print(f"Error: Source path is not a directory: {source}", file=sys.stderr)
+        prt_error(f"Error: Source path is not a directory: {source}")
         sys.exit(1)
 
-    print(f"Synchronizing FROM: {source.resolve()}", file=sys.stderr)
-    print(f"              TO: {current_dir.resolve()}", file=sys.stderr)
-    print("", file=sys.stderr)
+    prt_error(f"Synchronizing FROM: {source.resolve()}")
+    prt_error(f"              TO: {current_dir.resolve()}")
+    prt_error("")
 
     # Perform synchronization: source is remote subdirectory, destination is parent of current dir
     sync_directories(source, parent_dir)
+
+def from_usage():
+    prt_error("Usage: sync_from <remote_parent_dir>")
+    prt_error("")
+    prt_error(
+        "Synchronizes current directory FROM <remote_parent_dir>/$(basename $PWD)",
+    )
+    prt_error("")
+    prt_error("Example:")
+    prt_error("  cd /home/user/myproject")
+    prt_error("  sync_from /backup")
+    prt_error("  # Syncs FROM /backup/myproject TO current directory")
+    sys.exit(1)
 
 def sync_to():
     """Main function for sync_to command."""
     # Check for correct number of arguments
     if len(sys.argv) != 2:
-        print("Usage: sync_to <remote_parent_dir>", file=sys.stderr)
-        print("", file=sys.stderr)
-        print(
-            "Synchronizes current directory TO <remote_parent_dir>/$(basename $PWD)",
-            file=sys.stderr,
-        )
-        print("", file=sys.stderr)
-        print("Example:", file=sys.stderr)
-        print("  cd /home/user/myproject", file=sys.stderr)
-        print("  sync_to /backup", file=sys.stderr)
-        print("  # Syncs FROM current directory TO /backup/myproject", file=sys.stderr)
-        sys.exit(1)
-
+        to_usage()
     remote_parent_path = sys.argv[1]
     current_dir = Path.cwd()
 
     # Check if rsync is available
     if not check_rsync_available():
-        print("Error: rsync is not available on this system.", file=sys.stderr)
-        print("Please install rsync:", file=sys.stderr)
-        print("  Ubuntu/Debian: sudo apt-get install rsync", file=sys.stderr)
-        print("  macOS: brew install rsync (or use built-in version)", file=sys.stderr)
-        print("  Windows: Install via WSL, Cygwin, or msys2", file=sys.stderr)
+        prt_error("Error: rsync is not available on this system.")
         sys.exit(1)
 
     # Validate remote parent directory
     remote_parent = validate_directory(remote_parent_path, "Remote parent directory")
 
-    print(f"Synchronizing FROM: {current_dir.resolve()}", file=sys.stderr)
-    print(
+    prt_error(f"Synchronizing FROM: {current_dir.resolve()}")
+    prt_error(
         f"              TO: {remote_parent.resolve()}/{current_dir.name}",
-        file=sys.stderr,
     )
-    print("", file=sys.stderr)
+    prt_error("")
 
     # Perform synchronization: source is current directory, destination is remote parent
     sync_directories(current_dir, remote_parent)
+
+def to_usage():
+    prt_error("Usage: sync_to <remote_parent_dir>")
+    prt_error("")
+    prt_error(
+        "Synchronizes current directory TO <remote_parent_dir>/$(basename $PWD)",
+    )
+    prt_error("")
+    prt_error("Example:")
+    prt_error("  cd /home/user/myproject")
+    prt_error("  sync_to /backup")
+    prt_error("  # Syncs FROM current directory TO /backup/myproject")
+    sys.exit(1)
+
+def prt_error(*args, **kwargs):
+    return print(*args, file=sys.stderr, **kwargs)
