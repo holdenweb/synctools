@@ -1,0 +1,9 @@
+# Testing dependencies for synctools
+
+# Core testing framework
+pytest>=7.0.0
+pytest-cov>=4.0.0  # For coverage reporting
+
+# Optional but recommended
+pytest-xdist>=3.0.0  # For parallel test execution
+pytest-timeout>=2.1.0  # For test timeouts
