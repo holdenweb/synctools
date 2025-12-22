@@ -152,6 +152,13 @@ The test suite covers:
 ✓ Local and remote destinations work correctly
 ✓ All significant problems are detected and reported
 
+### Known Limitations
+⚠ **Remote-to-remote sync**: rsync does not support both source and destination being remote paths (e.g., `host1:/path` to `host2:/path` or even `host:/path1` to `host:/path2`). At least one side must be local. To sync between two remote locations, you need to:
+  - Run the sync from one of the remote machines, OR
+  - Use a two-step process (sync from remote1 to local, then from local to remote2)
+
+This is a limitation of rsync itself, not synctools.
+
 ### Error Detection
 ✓ Source doesn't exist (local/remote)
 ✓ Source is not a directory (local/remote)

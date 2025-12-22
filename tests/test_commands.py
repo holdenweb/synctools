@@ -154,10 +154,13 @@ class TestSyncFromLocal:
         verify_sync
     ):
         """Should sync from local source to current directory."""
-        # Create a directory to sync into
-        dest_dir = temp_local_dir / populated_source.name
+        # Create a directory to sync into (with different name to avoid conflict)
+        dest_dir = temp_local_dir / "dest_for_sync_from"
         dest_dir.mkdir()
-        os.chdir(dest_dir)
+        # Create subdirectory matching source name
+        sync_target = dest_dir / populated_source.name
+        sync_target.mkdir()
+        os.chdir(sync_target)
         
         # Parent of populated_source is the "remote parent"
         source_parent = populated_source.parent
@@ -166,7 +169,7 @@ class TestSyncFromLocal:
             sync_from()
         
         # Verify files were synced
-        errors = verify_sync(dest_dir)
+        errors = verify_sync(sync_target)
         assert not errors, f"Sync verification failed: {errors}"
     
     @rsync_available

@@ -173,7 +173,9 @@ class SSHFile(FilePath):
     """
     
     # Pattern to match SSH paths: [user@]host:/path
-    SSH_PATTERN = re.compile(r'^([a-zA-Z0-9_-]+@)?[a-zA-Z0-9._-]+:.+')
+    # Must not match Windows paths like C:/ or D:/
+    # Uses negative lookahead to exclude single letter followed by colon
+    SSH_PATTERN = re.compile(r'^(?![a-zA-Z]:)([a-zA-Z0-9_-]+@)?[a-zA-Z0-9._-]+:.+')
     
     def __init__(self, path: str):
         """
