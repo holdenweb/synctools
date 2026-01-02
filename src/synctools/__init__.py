@@ -7,6 +7,7 @@ from .sync_dirs import (
     sync_directories,
 )
 from .file_path import FilePath, LocalFile
+from .sync_diff import main as sync_diff_main
 
 
 def sync_from():
@@ -134,3 +135,8 @@ def to_usage():
 
 def prt_error(*args, **kwargs):
     return print(*args, file=sys.stderr, **kwargs)
+
+
+def sync_diff():
+    """Main function for sync_diff command."""
+    sync_diff_main()

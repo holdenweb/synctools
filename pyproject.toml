@@ -1,6 +1,6 @@
 [project]
 name = "synctools"
-version = "0.4.0"
+version = "0.5.0b1"
 description = "Add your description here"
 readme = "README.md"
 authors = [
@@ -12,7 +12,7 @@ dependencies = []
 [project.scripts]
 sync_to = "synctools:sync_to"
 sync_from = "synctools:sync_from"
-
+sync_diff = "synctools:sync_diff"
 [build-system]
 requires = ["uv_build>=0.8.3,<0.9.0"]
 build-backend = "uv_build"
